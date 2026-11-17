@@ -1,16 +1,38 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+import math
+import tkinter as tk
+from tkinter import ttk, messagebox
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+class Veiculo:
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    TARIFA_HORA = {
+        "Carro" : 5.0,
+        "Moto" : 3.0,
+    }
+
+
+    def __init__(self, placa, modelo, tipo):
+        self.placa = placa.strip().upper()
+        self.modelo = modelo.strip()
+        self.tipo = tipo.strip().capitalize()
+
+
+        if self.tipo not in self.TARIFA_HORA:
+            raise ValueError(f"Tipo de veículo inválido: {self.tipo} ou não autorizado.")
+
+
+    def tarifa_hora(self):
+        return self.TARIFA_HORA[self.tipo]
+
+class Vaga:
+    def __init__(self, numero):
+        self.numero = numero
+        self.veiculo = None #vaga livre
+
+        def livre(self): #vaga livre
+            return self.veiculo is None
+
+        def ocupada(self): #vaga ocupada 
+            return self.veiculo is not None
+
+        
