@@ -16,6 +16,7 @@ Para fazer um clone do projeto pelo Terminal do vscode -> git clone  https://git
  
 ------------------------------------------------------------------------------------------------------------------------------
 Depois de fazerem suas alterações, utilizem os seguintes comandos para enviar o trabalho ao GitHub:
+
 git add .
 
 git commit -m "Descrição do que foi feito"
