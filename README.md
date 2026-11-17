@@ -1,5 +1,6 @@
 "Projeto Paradigma de programacao em python - Gerenciamento de estacionamento" 
-paradigma - Tkiten;
+
+Paradigma - Tkiten;
 
 Baixar o projeto pela primeira vez:
 Para fazer um clone do projeto pelo Terminal do vscode -> git clone  https://github.com/R4phaH/GerencEstacionamento.git
