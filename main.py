@@ -70,3 +70,56 @@ class Ticket:
         horas = math.ceil(minutos / 60)  #minutos em horas arredondando para cima
         horas = min(horas, self.DIARIA_MAX / 60)  #limite de horas para o valor máximo da diária
         return horas * self.veiculo.tarifa_hora()
+
+
+class Estacionamento:
+
+    def __init__(self, total_vagas = 10):
+        self.vagas = [Vaga(numero = i + 1) for i in range(total_vagas)]
+        self.tickets_abertos = {} #todas as casas comecam vazias - dicionario de tickets abertos - onde os carros ficam que entraram e ainda nao sairam
+        self.historico = [] #ja saiu do estacionamento - historico de tickets fechados
+        self.arrecadado = 0.0 
+
+    def primeira_vaga_livre(self): #ele percorre a vaga e se ele nao achar nenhuma vaga livre ele retorna None(lotado)
+        for vaga in self.vagas:
+            if vaga.livre:
+                return vaga
+        return None
+
+    def registrar_entrada(self, veiculo): #quando um carro entra no estacionamento 
+
+        if veiculo.placa in self.tickets_abertos:
+            raise ValueError("Este veículo já está no estacionamento.")
+        
+        vaga = self.primeira_vaga_livre()
+        if vaga is None:
+            raise ValueError("Estacionamento lotado.")
+        
+        vaga.ocupar(veiculo)
+        ticket = Ticket(veiculo, vaga)
+        self.tickets_abertos[veiculo.placa] = ticket  #placa -> ticket    #associar o ticket ao veículo adicionando no dicionário de tickets abertos
+        return ticket
+    
+    def buscar_ticket(self, placa):
+        return self.tickets_abertos.get(placa.strip().upper()) #eu acho o ticket pela placa
+
+    def registrar_saida(self, placa, forma_pagamento):
+
+        ticket = self.buscar_ticket(placa)
+        if ticket is None:
+            raise ValueError("Veículo não encontrado no estacionamento.")
+        
+        ticket.saida = datetime.now() #saida do veiculo(obviamente a hora que ele saiu)
+        ticket.valor = ticket.calcular_valor()
+        ticket.forma_pagamento = forma_pagamento
+
+        ticket.vaga.liberar() #vaga liberada
+
+        
+        del self.tickets_abertos[placa.strip().upper()]
+        self.historico.append(ticket) #Remove o ticket do dicionário de tickets abertos e adiciona ao histórico
+
+        #arrecadação
+        self.arrecadado += ticket.valor
+
+        return ticket
