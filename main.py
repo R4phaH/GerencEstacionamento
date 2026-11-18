@@ -47,7 +47,8 @@ class Vaga:
 class Ticket:
     #estadia do veiculo -> vai ligar um veiculo a uma vaga 
     TOLERANCIA_MINUTOS = 15 
-    DIARIA_MAX = 24 * 60  # 24 horas - 40reais
+    DIARIA_MAX = 40  
+    MINUTOS_POR_DIA = 24 * 60
 
     def __init__(self, veiculo, vaga): #estou definindo a entrada do veiculo na vaga
         self.veiculo = veiculo
@@ -64,17 +65,37 @@ class Ticket:
     def calcular_valor(self, ate=None):
         minutos = self.minutos_estacionado(ate)            #quantos munutos o veiculo ficou estacionado
 
+        if minutos < 0:
+            raise ValueError("A data de saída não pode ser anterior à entrada.") 
+        
         if minutos <= self.TOLERANCIA_MINUTOS:
-            return 0.0
+            return 0.0        
         
         horas = math.ceil(minutos / 60)  #minutos em horas arredondando para cima
-        horas = min(horas, self.DIARIA_MAX / 60)  #limite de horas para o valor máximo da diária
-        return horas * self.veiculo.tarifa_hora()
+
+        valor_horas = horas * self.veiculo.tarifa_hora() #valor das horas multiplicado pela tarifa do veiculo
+        
+        dias = math.ceil(minutos / self.MINUTOS_DIA) #limite de horas para o valor máximo da diária
+        limite_diaria = dias * self.DIARIA_MAX
+
+        return min(valor_horas, limite_diaria)  #retorna o valor minimo entre o valor das horas e o limite da diaria
 
 
 class Estacionamento:
-
+    FORMAS_PAGAMENTO = {
+        "dinheiro": "Dinheiro",
+        "pix": "Pix",
+        "cartão de crédito": "Cartão de crédito",
+        "cartão de débito": "Cartão de débito"
+    }
     def __init__(self, total_vagas = 10):
+        if (
+            not isinstance(total_vagas, int)
+            or isinstance(total_vagas, bool)
+            or total_vagas <= 0
+        ):
+            raise ValueError("A quantidade de vagas deve ser um inteiro positivo.")
+        
         self.vagas = [Vaga(numero = i + 1) for i in range(total_vagas)]
         self.tickets_abertos = {} #todas as casas comecam vazias - dicionario de tickets abertos - onde os carros ficam que entraram e ainda nao sairam
         self.historico = [] #ja saiu do estacionamento - historico de tickets fechados
@@ -88,6 +109,10 @@ class Estacionamento:
 
     def registrar_entrada(self, veiculo): #quando um carro entra no estacionamento 
 
+        if not isinstance(veiculo, Veiculo):
+            raise ValueError("Veículo inválido.")
+
+        
         if veiculo.placa in self.tickets_abertos:
             raise ValueError("Este veículo já está no estacionamento.")
         
@@ -104,19 +129,27 @@ class Estacionamento:
         return self.tickets_abertos.get(placa.strip().upper()) #eu acho o ticket pela placa
 
     def registrar_saida(self, placa, forma_pagamento):
+        placa = placa.strip().upper()
 
         ticket = self.buscar_ticket(placa)
         if ticket is None:
             raise ValueError("Veículo não encontrado no estacionamento.")
+
+        pagamento = forma_pagamento.strip().lower()
+        if pagamento not in self.FORMAS_PAGAMENTO:
+            raise ValueError("Forma de pagamento inválida.")
         
         ticket.saida = datetime.now() #saida do veiculo(obviamente a hora que ele saiu)
-        ticket.valor = ticket.calcular_valor()
-        ticket.forma_pagamento = forma_pagamento
+
+        ticket.valor = ticket.calcular_valor(ticket.saida) #calcula o valor do ticket
+
+        ticket.forma_pagamento = self.FORMAS_PAGAMENTO[pagamento] #forma de pagamento do ticket
 
         ticket.vaga.liberar() #vaga liberada
 
-        
-        del self.tickets_abertos[placa.strip().upper()]
+
+        #atualizar os registros do estacionamento
+        del self.tickets_abertos[placa]
         self.historico.append(ticket) #Remove o ticket do dicionário de tickets abertos e adiciona ao histórico
 
         #arrecadação
