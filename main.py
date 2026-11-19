@@ -5,15 +5,14 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 
 
-# ==========================================
 # CLASSE VEICULO
-# ==========================================
 
 class Veiculo:
 
     TARIFA_HORA = {
         "Carro": 5.0,
-        "Moto": 3.0
+        "Moto": 3.0,
+        "Caminhão": 7.0
     }
 
     def __init__(self, placa, modelo, tipo):
@@ -28,9 +27,7 @@ class Veiculo:
         return self.TARIFA_HORA[self.tipo]
 
 
-# ==========================================
 # CLASSE VAGA
-# ==========================================
 
 class Vaga:
 
@@ -53,9 +50,7 @@ class Vaga:
         self.veiculo = None
 
 
-# ==========================================
 # CLASSE TICKET
-# ==========================================
 
 class Ticket:
 
@@ -87,9 +82,7 @@ class Ticket:
         return horas * self.veiculo.tarifa_hora()
 
 
-# ==========================================
 # CLASSE ESTACIONAMENTO
-# ==========================================
 
 class Estacionamento:
 
@@ -158,9 +151,7 @@ class Estacionamento:
         return ticket
 
 
-# ==========================================
-# CLASSE INTERFACE TKINTER
-# ==========================================
+# CLASSE INTERFACE
 
 class InterfaceEstacionamento:
 
@@ -173,12 +164,10 @@ class InterfaceEstacionamento:
         self.janela.geometry("850x650")
         self.janela.resizable(False, False)
 
-        self.criar_interface()
+        self.criar_interface() #montagem dos widgets
         self.atualizar_tabelas()
 
-    # ======================================
     # CRIAR INTERFACE
-    # ======================================
 
     def criar_interface(self):
 
@@ -186,7 +175,7 @@ class InterfaceEstacionamento:
             self.janela,
             text="SISTEMA DE ESTACIONAMENTO",
             font=("Arial", 18, "bold")
-        ).pack(pady=15)
+        ).pack(pady=15) 
 
         # INFORMAÇÕES
         frame_info = tk.Frame(self.janela)
@@ -227,7 +216,7 @@ class InterfaceEstacionamento:
 
         self.campo_tipo = ttk.Combobox(
             frame_cadastro,
-            values=["Carro", "Moto"],
+            values=["Carro", "Moto","Caminhão"],
             state="readonly",
             width=12
         )
@@ -339,9 +328,7 @@ class InterfaceEstacionamento:
 
         self.tabela_historico.pack(fill="both", expand=True)
 
-    # ======================================
     # REGISTRAR ENTRADA
-    # ======================================
 
     def registrar_entrada(self):
 
@@ -420,9 +407,7 @@ class InterfaceEstacionamento:
 
             messagebox.showerror("Erro", str(erro))
 
-    # ======================================
     # ATUALIZAR TABELAS
-    # ======================================
 
     def atualizar_tabelas(self):
 
@@ -476,10 +461,8 @@ class InterfaceEstacionamento:
             text=f"Total arrecadado: R$ {self.estacionamento.arrecadado:.2f}"
         )
 
-
-# ==========================================
+#--------------------------------------------
 # EXECUTAR PROGRAMA
-# ==========================================
 
 janela = tk.Tk()
 
